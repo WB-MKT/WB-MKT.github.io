@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pain to Uplift - Transform Business Challenges</title>
+    <meta name="description" content="Slice through business pain points to unlock transformative solutions and measurable value">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="background">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <!-- Start Screen -->
+    <div id="startScreen" class="screen active">
+        <div class="glass-panel">
+            <h1 class="title">
+                <span class="pain-text">Pain</span> to <span class="uplift-text">Uplift</span>
+            </h1>
+            <p class="subtitle">Transform Business Challenges into Measurable Value</p>
+            
+            <div class="instructions">
+                <h3>How to Play</h3>
+                <div class="instruction-item">
+                    <div class="instruction-icon">🍉</div>
+                    <p><strong>Slice Pain Points:</strong> Drag your mouse or swipe to cut through rising challenges</p>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-icon">⬆️</div>
+                    <p><strong>Unlock Solutions:</strong> Watch pain transform into actionable insights</p>
+                </div>
+                <div class="instruction-item">
+                    <div class="instruction-icon">📊</div>
+                    <p><strong>Track Impact:</strong> See real business metrics improve with each slice</p>
+                </div>
+                <div class="instruction-item warning">
+                    <div class="instruction-icon">⚠️</div>
+                    <p><strong>Don't Miss:</strong> Let 3 pain points escape and the game ends!</p>
+                </div>
+            </div>
+            
+            <button id="startButton" class="primary-button">
+                <span>Start Transforming</span>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen" class="screen">
+        <!-- Score HUD -->
+        <div class="hud">
+            <div class="hud-item">
+                <div class="hud-label">Score</div>
+                <div id="scoreDisplay" class="hud-value score-value">0</div>
+            </div>
+            <div class="hud-item">
+                <div class="hud-label">Combo</div>
+                <div id="comboDisplay" class="hud-value combo-value">0x</div>
+            </div>
+            <div class="hud-item">
+                <div class="hud-label">Missed</div>
+                <div id="missedDisplay" class="hud-value missed-value">0/3</div>
+            </div>
+        </div>
+
+        <!-- Game Canvas -->
+        <div id="gameCanvas" class="game-canvas"></div>
+
+        <!-- Slice Trail -->
+        <canvas id="sliceCanvas" class="slice-canvas"></canvas>
+
+        <!-- Solution Popup Container -->
+        <div id="solutionContainer" class="solution-container"></div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="gameOverScreen" class="screen">
+        <div class="glass-panel">
+            <h2 class="game-over-title">Transformation Complete!</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Final Score</div>
+                    <div id="finalScore" class="stat-value">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Pain Points Solved</div>
+                    <div id="painsSolved" class="stat-value">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Best Combo</div>
+                    <div id="bestCombo" class="stat-value">0x</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Total Impact</div>
+                    <div id="totalImpact" class="stat-value">0%</div>
+                </div>
+            </div>
+
+            <div class="achievements">
+                <h3>Business Impact Achieved</h3>
+                <div id="achievementsList" class="achievements-list"></div>
+            </div>
+
+            <div class="button-group">
+                <button id="restartButton" class="primary-button">
+                    <span>Play Again</span>
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M4 10C4 6.68629 6.68629 4 10 4C13.3137 4 16 6.68629 16 10C16 13.3137 13.3137 16 10 16C7.91775 16 6.08647 14.9311 5 13.2917" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M4 13V9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
