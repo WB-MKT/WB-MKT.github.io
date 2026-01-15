@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pain Point Ninja: The Uplift Slicer</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@700&family=Orbitron:wght@900&display=swap');
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #1a1a1a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+
+        #game-container {
+            width: 1000px;
+            height: 600px;
+            background-image: linear-gradient(to top, #1e3a5f 0%, #101d30 100%);
+            border: 3px solid #6ab7ff;
+            box-shadow: 0 0 30px rgba(106, 183, 255, 0.5);
+            cursor: crosshair;
+            position: relative;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        #ui-container {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            pointer-events: none;
+            text-shadow: 0 0 5px black;
+        }
+        
+        #score-display, #misses-display {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+        }
+        
+        #misses-display span {
+            color: #ff4d4d;
+        }
+
+        .modal {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(12, 20, 33, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 10;
+            cursor: default;
+        }
+
+        .modal h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            color: #6ab7ff;
+            text-shadow: 0 0 15px #6ab7ff;
+        }
+
+        .modal p {
+            color: #ccc;
+            font-size: 1.2rem;
+            margin: 1rem 0 2rem 0;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        .modal button {
+            padding: 1rem 2.5rem;
+            font-size: 1.5rem;
+            color: #0c1421;
+            background: linear-gradient(45deg, #ffd700, #ffae00);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 700;
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
+            transition: transform 0.2s;
+        }
+
+        .modal button:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        <div id="ui-container" style="display: none;">
+            <div id="score-display">UPLIFT: 0</div>
+            <div id="misses-display">MISSES: <span>● ● ●</span></div>
+        </div>
+
+        <div id="start-screen" class="modal">
+            <h1>PAIN POINT NINJA</h1>
+            <p>成为“痛点解决专家”！<br>按住鼠标划过屏幕，切掉蓝色的<b>“痛点卡片”</b>来获得Uplift积分。<br><b>注意：</b>千万不要切到红色的<b>“核心价值卡片”</b>！漏掉3个痛点，挑战也会失败！</p>
+            <button id="start-btn">开始挑战</button>
+        </div>
+
+        <div id="game-over-screen" class="modal" style="display: none;">
+            <h1 id="game-over-title">GAME OVER</h1>
+            <p id="game-over-message">切到了核心价值，挑战失败！</p>
+            <h2 style="color: white; font-family: 'Orbitron', sans-serif;">FINAL UPLIFT: <span id="final-score">0</span></h2>
+            <button onclick="location.reload()">重新挑战</button>
+        </div>
+    </div>
+
+    <script>
+    const gameContainer = document.getElementById('game-container');
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+
+    const ui = {
+        container: document.getElementById('ui-container'),
+        score: document.getElementById('score-display'),
+        misses: document.getElementById('misses-display')
+    };
+
+    const screens = {
+        start: document.getElementById('start-screen'),
+        gameOver: document.getElementById('game-over-screen')
+    };
+    
+    const startBtn = document.getElementById('start-btn');
+    const gameOverTitle = document.getElementById('game-over-title');
+    const gameOverMessage = document.getElementById('game-over-message');
+    const finalScoreDisplay = document.getElementById('final-score');
+
+    let isPlaying = false;
+    let score = 0;
+    let misses = 0;
+    const MAX_MISSES = 3;
+    let cards = [];
+    let sliceTrail = [];
+    let isSlicing = false;
+    
+    const PAIN_POINTS = ["数据孤岛", "运营低效", "高昂成本", "安全死角", "体验不佳", "系统封闭"];
+    const CORE_VALUES = ["合作伙伴", "持续创新", "客户信任", "核心技术"];
+
+    function setupCanvas() {
+        canvas.width = gameContainer.clientWidth;
+        canvas.height = gameContainer.clientHeight;
+    }
+
+    class Card {
+        constructor(text, type) {
+            this.x = Math.random() * canvas.width;
+            this.y = canvas.height + 50;
+            this.vx = (Math.random() - 0.5) * 8; // Horizontal velocity
+            this.vy = -(18 + Math.random() * 5);  // Initial upward velocity
+            this.gravity = 0.35;
+            this.text = text;
+            this.type = type; // 'pain' or 'core'
+            this.sliced = false;
+            this.angle = 0;
+            this.rotationSpeed = (Math.random() - 0.5) * 0.1;
+            this.width = 160;
+            this.height = 80;
+        }
+
+        update() {
+            this.vy += this.gravity;
+            this.x += this.vx;
+            this.y += this.vy;
+            this.angle += this.rotationSpeed;
+        }
+
+        draw() {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(this.angle);
+            
+            // Card body
+            ctx.fillStyle = this.type === 'pain' ? '#3d8bff' : '#ff4d4d';
+            ctx.strokeStyle = this.type === 'pain' ? '#a8caff' : '#ff8c8c';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.rect(-this.width / 2, -this.height / 2, this.width, this.height);
+            ctx.fill();
+            ctx.stroke();
+
+            // Text
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 24px "Noto Sans SC"';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(this.text, 0, 0);
+
+            ctx.restore();
+        }
+    }
+
+    function spawnCard() {
+        const type = Math.random() > 0.2 ? 'pain' : 'core';
+        let text;
+        if (type === 'pain') {
+            text = PAIN_POINTS[Math.floor(Math.random() * PAIN_POINTS.length)];
+        } else {
+            text = CORE_VALUES[Math.floor(Math.random() * CORE_VALUES.length)];
+        }
+        cards.push(new Card(text, type));
+    }
+    
+    function updateSliceTrail() {
+        if (sliceTrail.length > 20) {
+            sliceTrail.shift();
+        }
+    }
+
+    function drawSliceTrail() {
+        if (sliceTrail.length < 2) return;
+        ctx.strokeStyle = 'white';
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.globalAlpha = 1;
+        
+        for (let i = 1; i < sliceTrail.length; i++) {
+            ctx.beginPath();
+            ctx.moveTo(sliceTrail[i-1].x, sliceTrail[i-1].y);
+            ctx.lineTo(sliceTrail[i].x, sliceTrail[i].y);
+            ctx.stroke();
+            ctx.globalAlpha -= 0.05;
+        }
+        ctx.globalAlpha = 1;
+    }
+    
+    function checkCollision(card, p1, p2) {
+         // Simple line-circle intersection for the center of the card
+         const dx = p2.x - p1.x;
+         const dy = p2.y - p1.y;
+         const len = Math.sqrt(dx*dx + dy*dy);
+         const dot = (((card.x - p1.x) * dx) + ((card.y - p1.y) * dy)) / (len * len);
+         const closestX = p1.x + (dot * dx);
+         const closestY = p1.y + (dot * dy);
+
+         const onSegment = dot > 0 && dot < 1;
+         if (!onSegment) return false;
+
+         const dist = Math.sqrt(Math.pow(closestX - card.x, 2) + Math.pow(closestY - card.y, 2));
+         return dist < card.height / 2; // Check against half height for a generous slice
+    }
+
+    function gameLoop() {
+        if (!isPlaying) return;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Update and draw cards
+        for (let i = cards.length - 1; i >= 0; i--) {
+            const card = cards[i];
+            card.update();
+            card.draw();
+
+            if (card.y > canvas.height + card.height) {
+                if (!card.sliced && card.type === 'pain') {
+                    misses++;
+                    updateMissesDisplay();
+                }
+                cards.splice(i, 1);
+            }
+        }
+        
+        updateSliceTrail();
+        drawSliceTrail();
+        
+        if (misses >= MAX_MISSES) {
+             gameOver("漏掉太多痛点啦！");
+        }
+
+        requestAnimationFrame(gameLoop);
+    }
+    
+    function updateScore(points) {
+        score += points;
+        ui.score.textContent = `UPLIFT: ${score}`;
+    }
+    
+    function updateMissesDisplay() {
+        let missIcons = '';
+        for (let i = 0; i < MAX_MISSES - misses; i++) {
+            missIcons += '● ';
+        }
+        ui.misses.innerHTML = `MISSES: <span>${'● '.repeat(misses)}</span>${missIcons}`;
+    }
+
+    function gameOver(message) {
+        isPlaying = false;
+        gameOverMessage.textContent = message;
+        finalScoreDisplay.textContent = score;
+        screens.gameOver.style.display = 'flex';
+        ui.container.style.display = 'none';
+    }
+
+    function startGame() {
+        score = 0;
+        misses = 0;
+        cards = [];
+        isPlaying = true;
+        
+        updateScore(0);
+        updateMissesDisplay();
+
+        screens.start.style.display = 'none';
+        ui.container.style.display = 'flex';
+        
+        this.cardSpawner = setInterval(spawnCard, 1000);
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    // Event Listeners
+    startBtn.addEventListener('click', startGame);
+
+    gameContainer.addEventListener('mousedown', e => {
+        if (!isPlaying) return;
+        isSlicing = true;
+        sliceTrail = [{ x: e.offsetX, y: e.offsetY }];
+    });
+    
+    gameContainer.addEventListener('mouseup', () => {
+        isSlicing = false;
+        sliceTrail = [];
+    });
+    
+    gameContainer.addEventListener('mouseleave', () => {
+        isSlicing = false;
+        sliceTrail = [];
+    });
+
+    gameContainer.addEventListener('mousemove', e => {
+        if (!isPlaying || !isSlicing || sliceTrail.length === 0) return;
+
+        const currentPoint = { x: e.offsetX, y: e.offsetY };
+        const lastPoint = sliceTrail[sliceTrail.length - 1];
+        sliceTrail.push(currentPoint);
+
+        for (const card of cards) {
+            if (!card.sliced && checkCollision(card, lastPoint, currentPoint)) {
+                card.sliced = true;
+                if (card.type === 'pain') {
+                    updateScore(10);
+                } else {
+                    gameOver("切到了核心价值！挑战失败！");
+                    return; // Stop checking after game over
+                }
+            }
+        }
+    });
+
+    // Initial setup
+    setupCanvas();
+    window.addEventListener('resize', setupCanvas);
+
+    </script>
+</body>
+</html>
