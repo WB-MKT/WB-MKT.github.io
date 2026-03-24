@@ -15,8 +15,15 @@ body {font-family: Arial, sans-serif; margin:0; background:#f4f6f9;}
 .secondary {border:1px solid #ccc; color:#333; background:#fff;}
 
 .live-section {display:flex; gap:20px; margin-top:40px;}
-.video {flex:3;}
+.video {flex:3; position:relative;}
 .chat {flex:1;}
+
+.video img {width:100%; border-radius:12px;}
+.play-btn {
+  position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
+  background:rgba(0,0,0,0.6); color:#fff; padding:16px 22px; border-radius:50%; font-size:18px;
+}
+
 iframe {width:100%; height:450px; border:none; border-radius:12px;}
 
 .tabs {margin-top:40px;}
@@ -47,15 +54,6 @@ function submitForm(e){
   document.getElementById('form').reset();
   document.getElementById('successMsg').style.display='block';
 }
-
-// 简单直播状态控制（示例）
-window.onload = function(){
-  const now = new Date();
-  const liveTime = new Date('2026-04-22T17:00:00+08:00');
-  if(now < liveTime){
-    document.getElementById('videoFrame').src = '';
-  }
-}
 </script>
 </head>
 <body>
@@ -73,8 +71,13 @@ window.onload = function(){
 
 <div class="live-section">
   <div class="video">
-    <iframe id="videoFrame" src="https://www.youtube.com/embed/RQYzsYBYZt4" allowfullscreen></iframe>
+    <!-- YouTube Thumbnail -->
+    <a href="https://www.youtube.com/watch?v=RQYzsYBYZt4" target="_blank">
+      <img src="https://img.youtube.com/vi/RQYzsYBYZt4/maxresdefault.jpg" alt="YouTube Live Preview">
+      <div class="play-btn">▶</div>
+    </a>
   </div>
+
   <div class="chat">
     <iframe src="https://www.youtube.com/live_chat?v=RQYzsYBYZt4&embed_domain=wb-mkt.github.io"></iframe>
   </div>
