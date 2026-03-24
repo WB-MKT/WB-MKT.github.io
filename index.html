@@ -4,53 +4,23 @@
 <meta charset="UTF-8">
 <title>YouTube Live 嵌入示例</title>
 <style>
-  body { font-family: sans-serif; margin:0; padding:20px; display:flex; justify-content:center; }
-  .container { display:flex; flex-wrap:wrap; max-width:1200px; width:100%; gap:20px; }
-  .video, .chat { flex:1 1 400px; }
-  .video-placeholder {
-    width:100%; height:450px; background:#000; color:#fff;
-    display:flex; justify-content:center; align-items:center; font-size:1.5em; text-align:center;
-  }
-  iframe { width:100%; height:450px; border:0; }
-  .chat-placeholder {
-    width:100%; height:450px; background:#f0f0f0; color:#555;
-    display:flex; justify-content:center; align-items:center; font-size:1.2em; text-align:center;
-  }
+  body { margin: 0; padding: 20px; display: flex; justify-content: center; font-family: sans-serif; }
+  .container { display: flex; flex-wrap: wrap; max-width: 1200px; width: 100%; gap: 20px; }
+  .video { flex: 1 1 800px; }
+  iframe { width: 100%; height: 450px; border: 0; }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <!-- 视频区域 -->
-  <div class="video" id="video-area">
-    <div class="video-placeholder" id="video-placeholder">
-      直播尚未开始，请稍后观看
-    </div>
-  </div>
-
-  <!-- Chat 区域 -->
-  <div class="chat">
-    <div class="chat-placeholder">
-      聊天暂不可用
-    </div>
+  <!-- 视频 iframe，直播未开始也显示，不报错 -->
+  <div class="video">
+    <iframe 
+      src="https://www.youtube.com/embed/RQYzsYBYZt4" 
+      allowfullscreen>
+    </iframe>
   </div>
 </div>
-
-<script>
-  // 模拟直播开始时间（可替换成实际时间）
-  const LIVE_START_TIME = new Date("2026-03-24T15:00:00"); // 直播开始时间
-  const now = new Date();
-
-  if (now >= LIVE_START_TIME) {
-    const videoArea = document.getElementById('video-area');
-    videoArea.innerHTML = `
-      <iframe 
-        src="https://www.youtube.com/embed/RQYzsYBYZt4" 
-        allowfullscreen>
-      </iframe>
-    `;
-  }
-</script>
 
 </body>
 </html>
