@@ -1,19 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pain to Uplift - Transform Business Challenges</title>
-    <meta name="description" content="Slice through business pain points to unlock transformative solutions and measurable value">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<title>YouTube Live 嵌入示例</title>
+<style>
+  body { font-family: sans-serif; margin:0; padding:20px; display:flex; justify-content:center; }
+  .container { display:flex; flex-wrap:wrap; max-width:1200px; width:100%; gap:20px; }
+  .video, .chat { flex:1 1 400px; }
+  .video-placeholder {
+    width:100%; height:450px; background:#000; color:#fff;
+    display:flex; justify-content:center; align-items:center; font-size:1.5em; text-align:center;
+  }
+  iframe { width:100%; height:450px; border:0; }
+  .chat-placeholder {
+    width:100%; height:450px; background:#f0f0f0; color:#555;
+    display:flex; justify-content:center; align-items:center; font-size:1.2em; text-align:center;
+  }
+</style>
 </head>
 <body>
-<iframe width="350" height="500"
-        src="https://www.youtube.com/live_chat?v=RQYzsYBYZt4&embed_domain=wb-mkt.github.io"
-        frameborder="0">
-</iframe>
+
+<div class="container">
+  <!-- 视频区域 -->
+  <div class="video" id="video-area">
+    <div class="video-placeholder" id="video-placeholder">
+      直播尚未开始，请稍后观看
+    </div>
+  </div>
+
+  <!-- Chat 区域 -->
+  <div class="chat">
+    <div class="chat-placeholder">
+      聊天暂不可用
+    </div>
+  </div>
+</div>
+
+<script>
+  // 模拟直播开始时间（可替换成实际时间）
+  const LIVE_START_TIME = new Date("2026-03-24T15:00:00"); // 直播开始时间
+  const now = new Date();
+
+  if (now >= LIVE_START_TIME) {
+    const videoArea = document.getElementById('video-area');
+    videoArea.innerHTML = `
+      <iframe 
+        src="https://www.youtube.com/embed/RQYzsYBYZt4" 
+        allowfullscreen>
+      </iframe>
+    `;
+  }
+</script>
+
 </body>
 </html>
